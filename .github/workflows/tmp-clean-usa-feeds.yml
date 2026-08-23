@@ -1,0 +1,83 @@
+name: temporary USA feed cleanup
+
+on:
+  push:
+    branches:
+      - tmp-clean-usa-feeds-20260823
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.event.head_commit.message == 'temporary USA feed cleanup'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clean USA feeds
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('us-filtered-houston.m3u')
+          lines = path.read_text(encoding='utf-8').splitlines()
+          header = lines[0]
+
+          blocks=[]
+          i=1
+          while i < len(lines):
+              if not lines[i].startswith('#EXTINF'):
+                  i += 1
+                  continue
+              block=[lines[i]]
+              i += 1
+              while i < len(lines) and not lines[i].startswith('#EXTINF'):
+                  block.append(lines[i])
+                  i += 1
+                  if block[-1].strip() and not block[-1].startswith('#'):
+                      break
+              blocks.append(block)
+
+          def name_of(b):
+              return b[0].split(',',1)[1] if ',' in b[0] else ''
+
+          # Remove known dead/questionable USA entries.
+          remove = {'USA 1080p (2)','USA 576p (1)','USA (2)'}
+          blocks = [b for b in blocks if name_of(b) not in remove]
+
+          # Rename current master-list backup and add one new trial feed.
+          for b in blocks:
+              if name_of(b) == 'USA (1)':
+                  b[0] = b[0].rsplit(',',1)[0] + ',USA 1080p (2)'
+
+          primary = next(b for b in blocks if name_of(b) == 'USA 1080p (1)')
+          backup = next(b for b in blocks if name_of(b) == 'USA 1080p (2)')
+
+          # New trial feed from recent MoveOnJoy public lists.
+          trial = [
+              '#EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports",USA (1)',
+              'http://fl3.moveonjoy.com/USA_NETWORK/index.m3u8'
+          ]
+
+          rest = [b for b in blocks if b is not primary and b is not backup]
+          ordered = [primary, backup, trial] + rest
+
+          # Renumber all channels sequentially.
+          for idx,b in enumerate(ordered, start=1):
+              first = re.sub(r'\s+tvg-chno="[^"]*"', '', b[0])
+              first = re.sub(r'\s+channel-number="[^"]*"', '', first)
+              meta,title = first.split(',',1)
+              b[0] = f'{meta} tvg-chno="{idx}" channel-number="{idx}",{title}'
+
+          path.write_text(header+'\n'+'\n'.join('\n'.join(b) for b in ordered)+'\n', encoding='utf-8')
+          PY
+      - name: Commit playlist update
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add us-filtered-houston.m3u
+          git commit -m "Clean USA feeds and add trial backup"
+          git push
