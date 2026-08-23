@@ -1,6 +1,6 @@
 #EXTM3U x-tvg-url="https://vcicio.github.io/US-EPG/states/TX.xml.gz"
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="1" channel-number="1",USA 1080p (1)
-https://tvpass.org/live/USANetworkEast/hd
+http://190.11.225.124:5000/live/usa_hd/playlist.m3u8
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="2" channel-number="2",USA 1080p (2)
 https://epg.pw/stream/2fcf6ccf3ea06ee148d6829dd34cc45609014f8aa76281a1cff3ed679651172d.ctv
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="3" channel-number="3",USA 576p (1)
