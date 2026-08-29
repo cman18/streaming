@@ -1,0 +1,39 @@
+name: Rename USA channels once
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  rename:
+    if: github.event.head_commit.message == 'Add one-time USA renamer'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Rename USA entries
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('us-filtered-houston.m3u')
+          lines = p.read_text(encoding='utf-8').splitlines()
+          names = ['USA 1','USA 2','USA 3','USA 4']
+          seen = 0
+          for i, line in enumerate(lines):
+              if line.startswith('#EXTINF') and 'USA.Network.HD.us2' in line and seen < 4:
+                  lines[i] = line.rsplit(',', 1)[0] + ',' + names[seen]
+                  seen += 1
+          if seen != 4:
+              raise SystemExit(f'Expected 4 USA entries, found {seen}')
+          p.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+      - name: Commit rename
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add us-filtered-houston.m3u
+          git commit -m "Rename USA channels 1 through 4"
+          git push
