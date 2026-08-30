@@ -1,8 +1,8 @@
 #EXTM3U x-tvg-url="https://vcicio.github.io/US-EPG/states/TX.xml.gz"
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="1" channel-number="1",USA 1 1080p
 http://190.11.225.124:5000/live/usa_hd/playlist.m3u8
-#EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="2" channel-number="2",USA 2 1080p
-https://gpuserver5.tier1streams.com/USA_NETWORK/index.m3u8
+#EXTINF:-1 tvg-id="USANetwork.us@East" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="2" channel-number="2",USA 2 576p
+https://tvsen3.aynaott.com/dbbcY6NG/index.m3u8
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="3" channel-number="3",USA 3
 http://fl3.moveonjoy.com/USA_NETWORK/index.m3u8
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="4" channel-number="4",USA 4 1080p
@@ -11,8 +11,8 @@ https://tvpass.org/live/USANetworkEast/hd
 https://trs1.aynaott.com/usa/index.m3u8
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="6" channel-number="6",USA 6
 http://23.237.104.106:8080/USA_NETWORK/index.m3u8?takodachi
-#EXTINF:-1 tvg-id="USANetwork.us@East" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="7" channel-number="7",USA 7 576p
-https://tvsen3.aynaott.com/dbbcY6NG/index.m3u8
+#EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="7" channel-number="7",USA 7 1080p
+https://gpuserver5.tier1streams.com/USA_NETWORK/index.m3u8
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="8" channel-number="8",USA 8
 http://fl2.moveonjoy.com/USA_Network/index.m3u8
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="9" channel-number="9",USA 9
