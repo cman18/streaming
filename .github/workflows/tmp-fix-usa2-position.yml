@@ -1,0 +1,36 @@
+name: temporary fix USA 2 position
+
+on:
+  push:
+    branches:
+      - tmp-swap-usa2-usa7-20260830
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.event.head_commit.message == 'temporary fix USA 2 position'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move working USA feed to channel 2
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('us-filtered-houston.m3u')
+          s = p.read_text()
+          a = '#EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="2" channel-number="2",USA 7 1080p\nhttps://gpuserver5.tier1streams.com/USA_NETWORK/index.m3u8'
+          b = '#EXTINF:-1 tvg-id="USANetwork.us@East" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="7" channel-number="7",USA 2 576p\nhttps://tvsen3.aynaott.com/dbbcY6NG/index.m3u8'
+          assert s.count(a) == 1, s.count(a)
+          assert s.count(b) == 1, s.count(b)
+          s = s.replace(a, '#EXTINF:-1 tvg-id="USANetwork.us@East" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="2" channel-number="2",USA 2 576p\nhttps://tvsen3.aynaott.com/dbbcY6NG/index.m3u8')
+          s = s.replace(b, '#EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/960px-USA_Network_logo_%282016%29.svg.png" group-title="Sports" tvg-chno="7" channel-number="7",USA 7 1080p\nhttps://gpuserver5.tier1streams.com/USA_NETWORK/index.m3u8')
+          p.write_text(s)
+      - name: Commit playlist change
+        run: |
+          git config user.name "cman18"
+          git config user.email "coffeemanhou@gmail.com"
+          git add us-filtered-houston.m3u
+          git commit -m "Move working USA feed to channel 2"
+          git push
