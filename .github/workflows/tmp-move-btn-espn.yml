@@ -1,0 +1,76 @@
+name: temporary BTN ESPN grouping
+
+on:
+  push:
+    branches:
+      - tmp-move-btn-espn-20260906
+
+permissions:
+  contents: write
+
+jobs:
+  reorder:
+    if: github.event.head_commit.message == 'temporary BTN ESPN grouping workflow'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-move-btn-espn-20260906
+      - name: Move BTN and ESPN-family channels
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          p = Path('us-filtered-houston.m3u')
+          lines = p.read_text(encoding='utf-8').splitlines()
+          header = lines[0]
+          records = []
+          i = 1
+          while i < len(lines):
+              if lines[i].startswith('#EXTINF:'):
+                  rec = [lines[i]]
+                  i += 1
+                  while i < len(lines) and not lines[i].startswith('#EXTINF:'):
+                      rec.append(lines[i])
+                      i += 1
+                  records.append(rec)
+              else:
+                  i += 1
+
+          def name(rec):
+              return rec[0].split(',',1)[1] if ',' in rec[0] else ''
+
+          btn_name = 'Big Ten Network (720p)'
+          espn_names = ['ESPNU (720p)', 'ESPNU HD (720p)', 'ESPN Deportes HD (720p)']
+
+          btn = next((r for r in records if name(r) == btn_name), None)
+          espn = [r for n in espn_names for r in records if name(r) == n]
+          moving_names = {btn_name, *espn_names}
+          remaining = [r for r in records if name(r) not in moving_names]
+
+          if btn:
+              fox_idx = next(i for i,r in enumerate(remaining) if name(r) == 'Fox Deportes (720p)') + 1
+              remaining = remaining[:fox_idx] + [btn] + remaining[fox_idx:]
+
+          if espn:
+              cbs_idx = next(i for i,r in enumerate(remaining) if name(r) == 'Golazo Network (720p)') + 1
+              remaining = remaining[:cbs_idx] + espn + remaining[cbs_idx:]
+
+          out = [header]
+          for idx, rec in enumerate(remaining, 1):
+              first = rec[0]
+              first = re.sub(r'\s+tvg-chno="[^"]*"', '', first)
+              first = re.sub(r'\s+channel-number="[^"]*"', '', first)
+              if ',' in first:
+                  left, right = first.split(',',1)
+                  first = f'{left} tvg-chno="{idx}" channel-number="{idx}",{right}'
+              out.append(first)
+              out.extend(rec[1:])
+          p.write_text('\n'.join(out) + '\n', encoding='utf-8')
+          PY
+          git config user.name cman18
+          git config user.email coffeemanhou@gmail.com
+          git add us-filtered-houston.m3u
+          git commit -m "Move BTN and ESPN family near top" || exit 0
+          git push
