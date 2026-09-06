@@ -1,0 +1,105 @@
+name: temporary FOX grouping
+
+on:
+  push:
+    branches:
+      - tmp-group-fox-20260906
+
+permissions:
+  contents: write
+
+jobs:
+  reorder:
+    if: github.event.head_commit.message == 'temporary FOX grouping workflow'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-group-fox-20260906
+      - name: Reorder FOX CBS and Golazo channels
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          p = Path('us-filtered-houston.m3u')
+          lines = p.read_text(encoding='utf-8').splitlines()
+          header = lines[0]
+          records = []
+          i = 1
+          while i < len(lines):
+              if lines[i].startswith('#EXTINF:'):
+                  rec = [lines[i]]
+                  i += 1
+                  while i < len(lines) and not lines[i].startswith('#EXTINF:'):
+                      rec.append(lines[i])
+                      i += 1
+                  records.append(rec)
+              else:
+                  i += 1
+
+          def name(rec):
+              return rec[0].split(',',1)[1] if ',' in rec[0] else ''
+
+          fox_names = {
+              'FOX 26 Houston KRIV (1080p)',
+              'Fox (1080p) [Geo-blocked]',
+              'Fox Sports 1 (720p)',
+              'Fox Sports 2 (720p)',
+              'Fox West (720p)',
+              'Fox Deportes (720p)',
+              'Fox Business Network (480p)',
+              'Fox News Channel (720p)',
+              'Fox News Radio (720p)',
+              'Fox Soul (1080p)',
+              'FOX Weather (1080p) [Geo-blocked]',
+              'LiveNOW from FOX (1080p) [Geo-blocked]',
+          }
+          extra_names = {
+              'CBS (1080p)',
+              'CBS Sports Golazo Network (720p)',
+              'Golazo Network (720p)',
+          }
+          moving = [r for r in records if name(r) in fox_names or name(r) in extra_names]
+          remaining = [r for r in records if name(r) not in fox_names and name(r) not in extra_names]
+
+          order = [
+              'FOX 26 Houston KRIV (1080p)',
+              'Fox (1080p) [Geo-blocked]',
+              'Fox Sports 1 (720p)',
+              'Fox Sports 2 (720p)',
+              'Fox West (720p)',
+              'Fox Deportes (720p)',
+              'Fox Business Network (480p)',
+              'Fox News Channel (720p)',
+              'Fox News Radio (720p)',
+              'Fox Soul (1080p)',
+              'FOX Weather (1080p) [Geo-blocked]',
+              'LiveNOW from FOX (1080p) [Geo-blocked]',
+              'CBS (1080p)',
+              'CBS Sports Golazo Network (720p)',
+              'Golazo Network (720p)',
+          ]
+          by_name = {name(r): r for r in moving}
+          ordered_moving = [by_name[n] for n in order if n in by_name]
+
+          insert_at = next(i for i,r in enumerate(remaining) if name(r) == 'NBC Sports NOW') + 1
+          records = remaining[:insert_at] + ordered_moving + remaining[insert_at:]
+
+          out = [header]
+          for idx, rec in enumerate(records, 1):
+              first = rec[0]
+              first = re.sub(r'\s+tvg-chno="[^"]*"', '', first)
+              first = re.sub(r'\s+channel-number="[^"]*"', '', first)
+              if ',' in first:
+                  left, right = first.split(',',1)
+                  first = f'{left} tvg-chno="{idx}" channel-number="{idx}",{right}'
+              out.append(first)
+              out.extend(rec[1:])
+          p.write_text('\n'.join(out) + '\n', encoding='utf-8')
+          PY
+          git config user.name cman18
+          git config user.email coffeemanhou@gmail.com
+          git add us-filtered-houston.m3u
+          git commit -m "Group FOX CBS and Golazo channels" || exit 0
+          git push
