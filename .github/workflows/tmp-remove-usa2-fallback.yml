@@ -1,0 +1,79 @@
+name: temporary remove USA2 to fallback
+
+on:
+  push:
+    branches:
+      - tmp-remove-usa2-to-fallback-20260919
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.event.head_commit.message == 'temporary remove USA2 fallback workflow'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-remove-usa2-to-fallback-20260919
+      - name: Remove USA 2 and archive it
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          p=Path('us-filtered-houston.m3u')
+          lines=p.read_text(encoding='utf-8').splitlines()
+          header=lines[0]
+          records=[]
+          i=1
+          while i<len(lines):
+              if lines[i].startswith('#EXTINF:'):
+                  rec=[lines[i]]; i+=1
+                  while i<len(lines) and not lines[i].startswith('#EXTINF:'):
+                      rec.append(lines[i]); i+=1
+                  records.append(rec)
+              else:
+                  i+=1
+
+          def name(rec):
+              return rec[0].split(',',1)[1] if ',' in rec[0] else ''
+          def url(rec):
+              for x in rec[1:]:
+                  if x and not x.startswith('#'):
+                      return x.strip()
+              return ''
+
+          removed=None
+          kept=[]
+          for rec in records:
+              if name(rec).startswith('USA 2 '):
+                  removed=(name(rec),url(rec))
+              else:
+                  kept.append(rec)
+
+          out=[header]
+          for idx,rec in enumerate(kept,1):
+              first=rec[0]
+              first=re.sub(r'\s+tvg-chno="[^"]*"', '', first)
+              first=re.sub(r'\s+channel-number="[^"]*"', '', first)
+              left,right=first.split(',',1)
+              out.append(f'{left} tvg-chno="{idx}" channel-number="{idx}",{right}')
+              out.extend(rec[1:])
+          p.write_text('\n'.join(out)+'\n',encoding='utf-8')
+
+          if removed:
+              w=Path('usa-feed-watchlist.md')
+              txt=w.read_text(encoding='utf-8')
+              row=f'| {removed[0]} | {removed[1]} |'
+              if removed[1] not in txt:
+                  if not txt.endswith('\n'):
+                      txt+='\n'
+                  txt+=row+'\n'
+                  w.write_text(txt,encoding='utf-8')
+          PY
+          git config user.name cman18
+          git config user.email coffeemanhou@gmail.com
+          git add us-filtered-houston.m3u usa-feed-watchlist.md
+          git commit -m "Remove USA 2 and archive fallback" || exit 0
+          git push
