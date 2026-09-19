@@ -13,3 +13,4 @@ Removed from the active playlist on 2026-09-19 because they were not working rel
 | USA 8 | http://fl2.moveonjoy.com/USA_Network/index.m3u8 |
 | USA 9 | https://fl1.moveonjoy.com/USA_NETWORK/index.m3u8 |
 | USA 10 720p | https://e3.thetvapp.to/hls/USANetworkEast/tracks-v2a1/mono.m3u8 |
+| USA 2 360p | http://7aser96.statics-cdnvice.com/live/seyrettv3405/cZKFnm74HQ/115015.m3u8 |
