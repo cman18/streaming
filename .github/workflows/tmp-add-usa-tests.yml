@@ -1,0 +1,74 @@
+name: temporary add USA test feeds
+
+on:
+  push:
+    branches:
+      - tmp-add-usa2-usa3-20260919
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.event.head_commit.message == 'temporary add USA test feeds workflow'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-add-usa2-usa3-20260919
+      - name: Add USA 2 and USA 3
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          p=Path('us-filtered-houston.m3u')
+          lines=p.read_text(encoding='utf-8').splitlines()
+          header=lines[0]
+          records=[]
+          i=1
+          while i<len(lines):
+              if lines[i].startswith('#EXTINF:'):
+                  rec=[lines[i]]
+                  i+=1
+                  while i<len(lines) and not lines[i].startswith('#EXTINF:'):
+                      rec.append(lines[i]); i+=1
+                  records.append(rec)
+              else:
+                  i+=1
+
+          def name(rec):
+              return rec[0].split(',',1)[1] if ',' in rec[0] else ''
+          def url(rec):
+              for x in rec[1:]:
+                  if x and not x.startswith('#'):
+                      return x.strip()
+              return ''
+
+          existing={url(r) for r in records}
+          additions=[
+              ['#EXTINF:-1 tvg-id="USANetwork.us@East" group-title="Sports",USA 2 720p',
+               'http://fl7.moveonjoy.com/USA_NETWORK/index.m3u8'],
+              ['#EXTINF:-1 tvg-id="USANetwork.us@East" group-title="Sports",USA 3 360p',
+               'https://tvpass.org/live/USANetworkEast/sd'],
+          ]
+
+          insert_at=next(i for i,r in enumerate(records) if name(r).startswith('NBCSN'))
+          to_add=[r for r in additions if r[1] not in existing]
+          records[insert_at:insert_at]=to_add
+
+          out=[header]
+          for idx,rec in enumerate(records,1):
+              first=rec[0]
+              first=re.sub(r'\s+tvg-chno="[^"]*"', '', first)
+              first=re.sub(r'\s+channel-number="[^"]*"', '', first)
+              left,right=first.split(',',1)
+              out.append(f'{left} tvg-chno="{idx}" channel-number="{idx}",{right}')
+              out.extend(rec[1:])
+          p.write_text('\n'.join(out)+'\n',encoding='utf-8')
+          PY
+          git config user.name cman18
+          git config user.email coffeemanhou@gmail.com
+          git add us-filtered-houston.m3u
+          git commit -m "Add USA 2 and USA 3 test feeds" || exit 0
+          git push
