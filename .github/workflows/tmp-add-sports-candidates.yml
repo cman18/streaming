@@ -1,0 +1,94 @@
+name: temporary add sports candidates
+
+on:
+  push:
+    branches:
+      - tmp-add-sports-candidates-20260927
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.event.head_commit.message == 'temporary add sports candidates workflow'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-add-sports-candidates-20260927
+      - name: Add new sports candidates
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          p=Path('us-filtered-houston.m3u')
+          lines=p.read_text(encoding='utf-8').splitlines()
+          header=lines[0]
+          records=[]
+          i=1
+          while i<len(lines):
+              if lines[i].startswith('#EXTINF:'):
+                  rec=[lines[i]]
+                  i+=1
+                  while i<len(lines) and not lines[i].startswith('#EXTINF:'):
+                      rec.append(lines[i]); i+=1
+                  records.append(rec)
+              else:
+                  i+=1
+
+          def name(rec):
+              return rec[0].split(',',1)[1] if ',' in rec[0] else ''
+          def url(rec):
+              for x in rec[1:]:
+                  if x and not x.startswith('#'):
+                      return x.strip()
+              return ''
+
+          existing={url(r) for r in records}
+
+          # FS1 alternate, placed immediately after the existing FS1
+          fs1_alt=[
+              '#EXTINF:-1 tvg-id="FS1.HD.us2" group-title="Sports",Fox Sports 1 Trial 2 (720p)',
+              'http://190.11.225.124:5000/live/fs1_hd/playlist.m3u8'
+          ]
+          if fs1_alt[1] not in existing:
+              idx=next(i for i,r in enumerate(records) if name(r).startswith('Fox Sports 1 '))
+              records.insert(idx+1, fs1_alt)
+              existing.add(fs1_alt[1])
+
+          # CBS Sports Network, placed with the CBS sports block
+          cbsn=[
+              '#EXTINF:-1 tvg-id="CBSSportsNetworkUSA.us@SD" group-title="Sports",CBS Sports Network Trial (720p)',
+              'http://40.160.24.52/CBS_SPORTS_NETWORK/index.m3u8'
+          ]
+          if cbsn[1] not in existing:
+              idx=next(i for i,r in enumerate(records) if name(r).startswith('CBS Sports Golazo Network'))
+              records.insert(idx+1, cbsn)
+              existing.add(cbsn[1])
+
+          # PTV Sports, placed after the ESPN family
+          ptv=[
+              '#EXTINF:-1 tvg-id="PTVSports.pk@SD" group-title="Sports",PTV Sports Trial (720p)',
+              'http://tvsen5.aynascope.net/Ptvsports/index.m3u8'
+          ]
+          if ptv[1] not in existing:
+              idx=max(i for i,r in enumerate(records) if name(r).startswith('ESPN') or name(r).startswith('ESPNU'))
+              records.insert(idx+1, ptv)
+
+          out=[header]
+          for idx,rec in enumerate(records,1):
+              first=rec[0]
+              first=re.sub(r'\s+tvg-chno="[^"]*"', '', first)
+              first=re.sub(r'\s+channel-number="[^"]*"', '', first)
+              left,right=first.split(',',1)
+              out.append(f'{left} tvg-chno="{idx}" channel-number="{idx}",{right}')
+              out.extend(rec[1:])
+          p.write_text('\n'.join(out)+'\n',encoding='utf-8')
+          PY
+
+          git config user.name cman18
+          git config user.email coffeemanhou@gmail.com
+          git add us-filtered-houston.m3u
+          git commit -m "Add new sports test feeds" || exit 0
+          git push
