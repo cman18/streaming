@@ -653,7 +653,7 @@ http://video.ct-n.com/live/web2stream/playlist.m3u8
 http://video.ct-n.com/live/ctnstream/playlist_DVR.m3u8
 #EXTINF:-1 tvg-id="Curiosity.NOW.us2" tvg-logo="https://i.imgur.com/gJ9eMaG.png" group-title="Documentary" tvg-chno="327" channel-number="327",Curiosity Now (1080p)
 https://amg00170-amg00170c4-samsung-gb-4232.playouts.now.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-id="CW.us@East" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/The_CW_2024.svg/960px-The_CW_2024.svg.png" group-title="General" tvg-chno="328" channel-number="328",CW (1080p) [Geo-blocked]
+#EXTINF:-1 tvg-id="CW.us@East" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/The_CW_2024.svg/960px-The_CW_2024.svg.png" group-title="Sports" tvg-chno="328" channel-number="328",CW (1080p) [Geo-blocked]
 https://messi.damitv.st/papi/ts/cw-usa/playlist.m3u8
 #EXTINF:-1 tvg-id="DangerTV.us2" tvg-logo="https://i.imgur.com/4aTk45R.png" group-title="Documentary" tvg-chno="329" channel-number="329",DangerTV (720p)
 https://dk0n7jh428tzj.cloudfront.net/v1/dangertv/samsungheadend_us/latest/main/hls/playlist.m3u8
