@@ -4,7 +4,7 @@ Removed from the active playlist on 2026-09-19 because they were not working rel
 
 | Previous name | Stream URL |
 |---|---|
-| USA 2 576p | https://tvsen3.aynaott.com/dbbcY6NG/index.m3u8 |
+| USA 2 576p | https://tvsen3.aynaott.com/dbbcY6NG/index.m3u8 | Restored 2026-10-25 |
 | USA 3 | http://fl3.moveonjoy.com/USA_NETWORK/index.m3u8 |
 | USA 4 1080p | https://tvpass.org/live/USANetworkEast/hd |
 | USA 5 576p | https://trs1.aynaott.com/usa/index.m3u8 |
